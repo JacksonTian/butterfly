@@ -1,70 +1,3 @@
-var Model = function (value, index) {
-  if (typeof value !== 'undefined') {
-    this.value = value;
-  }
-  this.index = index;
-};
-
-// 实现你自己的render方法
-// Model.prototype.render = function () {};
-
-Model.prototype.change = function (value) {
-  var called = this.hasOwnProperty('value');
-  this.value = value;
-  // 如果没有设置过value，调用一次render
-  if (!called) {
-    this.render();
-  } else {
-    if (this.update) {
-      this.update();
-    }
-  }
-};
-
-var Collection = function (data, render, update) {
-  this.collection = [];
-  this.commonRender = render;
-  this.commonUpdate = update;
-  for (var i = 0; i < data.length; i++) {
-    this.add(data[i]);
-  }
-};
-
-Collection.prototype.render = function () {
-  for (var i = 0; i < this.collection.length; i++) {
-    var model = this.collection[i];
-    // 设置值后才渲染
-    if (model.hasOwnProperty('value')) {
-      model.render();
-    }
-  }
-};
-
-Collection.prototype.add = function (item) {
-  var index = this.collection.length;
-  var model;
-  if (item instanceof Model) {
-    model = item;
-    model.index = index;
-  } else {
-    model = new Model(item, index);
-  }
-
-  // 绑定公共方法，不覆盖旧有方法
-  if (!model.render) {
-    model.render = this.commonRender;
-  }
-
-  if (!model.update) {
-    model.update = this.commonUpdate;
-  }
-  this.collection.push(model);
-};
-
-Collection.prototype.get = function (index) {
-  return this.collection[index];
-};
-
 // Creates canvas 320 × 200 at 10, 50
 var paper = new Raphael("paper", 300, 300); // paper, 300, 300
 // var data = [10, 20, 22, 43];
@@ -80,7 +13,7 @@ var paper = new Raphael("paper", 300, 300); // paper, 300, 300
 //   collection.get(2).change(Math.round(Math.random() * 100));
 // }, 1000);
 
-var hh = new Model();
+var hh = new butterfly.Model();
 hh.render = function () {
   var value = this.value;
   this.element = paper.rect(98, 60, 5, 40);
@@ -91,7 +24,7 @@ hh.update = function () {
   var value = this.value;
   this.element.transform('r' + 360 / 12 * value + ', 100, 100');
 };
-var mm = new Model();
+var mm = new butterfly.Model();
 mm.render = function () {
   var value = this.value;
   this.element = paper.rect(99, 50, 3, 50);
@@ -103,7 +36,7 @@ mm.update = function () {
   this.element.transform('r' + 360 / 60 * value + ', 100, 100');
 };
 
-var ss = new Model();
+var ss = new butterfly.Model();
 ss.render = function () {
   var value = this.value;
   this.element = paper.rect(100, 40, 1, 60).attr('stroke', 'red');
@@ -123,8 +56,10 @@ for (var i = 0; i < 12; i++) {
 }
 paper.circle(100, 100, 5).attr('fill', 'black');
 paper.text(100, 120, 'love lina');
-var collection = new Collection(time);
+var collection = new butterfly.Collection(time);
 collection.render();
+
+// 定时器
 setInterval(function () {
   var now = new Date();
   var second = now.getSeconds();
