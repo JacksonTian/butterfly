@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script type="text/javascript" src="/lib/raphael-2.1.2.js"></script>
+  <script type="text/javascript" src="/lib/butterfly.js"></script>
+</head>
+<body>
+  <div id="paper">
+    
+  </div>
+  <script type="text/javascript">
+  // Creates canvas 320 × 200 at 10, 50
+  var paper = new Raphael("paper", 500, 300); // paper, 300, 300
+  var months = [
+    ['J', 2.4, 7.9],
+    ['F', 2.2, 8.2],
+    ['M', 3.8, 10.9],
+    ['A', 5.2, 13.3],
+    ['M', 8.0, 17.2],
+    ['J', 11.1, 20.2],
+    ['J', 13.8, 22.8],
+    ['A', 13.3, 22.6],
+    ['S', 10.9, 19.3],
+    ['O', 8.0, 15.2],
+    ['N', 4.8, 10.9],
+    ['D', 3.3, 8.8]
+  ];
+  var baseline = 150;
+  // var getPath = months.map(function () {
+  //   return 
+  // });
+  var collection = new butterfly.Collection(months, function () {
+    var x = (this.index + 1) * 40;
+    this.low = paper.circle(x, baseline - this.value[1] * 5, 2);
+    this.lowText = paper.text(x, baseline - this.value[1] * 5 + 12, this.value[1]);
+    this.high = paper.circle(x, baseline - this.value[2] * 5, 2);
+    this.highText = paper.text(x, baseline - this.value[2] * 5 - 12, this.value[2]);
+    this.text = paper.text(x, 250, this.value[0]);
+  }, function () {
+    this.low.animate({'cy': baseline - this.value[1] * 5}, 100);
+    this.lowText.animate({
+      'y': baseline - this.value[1] * 5 + 12,
+      'text': this.value[1]
+    }, 100);
+    this.high.animate({'cy': baseline - this.value[2] * 5}, 100);
+    this.highText.animate({
+      'y': baseline - this.value[2] * 5 - 12,
+      'text': this.value[2]
+    }, 100);
+  });
+  collection.draw = function () {
+    var lowPoints = this.collection.map(function (model, index) {
+      var x = (index + 1) * 40;
+      var y = baseline - model.value[1] * 5;
+      if (index === 0) {
+        return 'M' + x + ',' + y;
+      } else {
+        return 'L' + x + ',' + y;
+      }
+    }).join('');
+    var highPoints = this.collection.map(function (model, index) {
+      var x = (index + 1) * 40;
+      var y = baseline - model.value[2] * 5;
+      if (index === 0) {
+        return 'L' + x + ',' + y;
+      } else {
+        return 'L' + x + ',' + y;
+      }
+    }).reverse().join(',');
+    this.polygon = paper.path(lowPoints + highPoints + 'z').attr({
+      'fill': '270-#f00-#00f',
+      stroke: '270-#f00-#00f'
+    });
+    this.freezing = paper.path('M0,' + baseline + 'L500,' + baseline);
+    this.freezingText = paper.text(250, baseline, 'freezing');
+  };
+  collection.update = function () {
+    var lowPoints = this.collection.map(function (model, index) {
+      var x = (index + 1) * 40;
+      var y = baseline - model.value[1] * 5;
+      if (index === 0) {
+        return 'M' + x + ',' + y;
+      } else {
+        return 'L' + x + ',' + y;
+      }
+    }).join('');
+    var highPoints = this.collection.map(function (model, index) {
+      var x = (index + 1) * 40;
+      var y = baseline - model.value[2] * 5;
+      if (index === 0) {
+        return 'L' + x + ',' + y;
+      } else {
+        return 'L' + x + ',' + y;
+      }
+    }).reverse().join(',');
+    this.polygon.animate({'path': lowPoints + highPoints + 'z'}, 100);
+  };
+  collection.render();
+  setTimeout(function () {
+    var months = [
+      ['J', -2.4, 3.9],
+      ['F', -2.2, 2.2],
+      ['M', -3.8, 15.9],
+      ['A', -5.2, 12.3],
+      ['M', -8.0, 17.2],
+      ['J', -11.1, 20.2],
+      ['J', -13.8, 12.8],
+      ['A', -13.3, 15.6],
+      ['S', -10.9, 6.3],
+      ['O', -8.0, 7.2],
+      ['N', -4.8, 10.9],
+      ['D', -3.3, 8.8]
+    ];
+    collection.collection.forEach(function (model, i) {
+      model.change(months[i]);
+    });
+    collection.change();
+  }, 1000);
+  </script>
+</body>
+</html>
